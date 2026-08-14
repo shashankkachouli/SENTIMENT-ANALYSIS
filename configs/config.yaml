@@ -1,0 +1,62 @@
+# Central configuration for the sentiment-analysis project.
+# Every script reads from this file instead of hardcoding values.
+
+seed: 42
+
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  train_file: "twitter_training.csv"
+  val_file: "twitter_validation.csv"      # Kaggle ships a separate validation file;
+                                           # we re-split it into val/test (see preprocessing).
+  columns: ["tweet_id", "entity", "sentiment", "text"]
+  # The source dataset has 4 labels. We collapse "Irrelevant" into "Neutral" per the
+  # dataset author's own guidance (see README section 2), giving 3 final classes.
+  label_map:
+    Positive: Positive
+    Negative: Negative
+    Neutral: Neutral
+    Irrelevant: Neutral
+  max_chars_hard_cutoff: 2000             # drop/flag rows longer than this as junk/scrape errors
+
+preprocessing:
+  test_size_from_val: 0.5                 # split the provided validation file 50/50 into val/test
+  min_text_length: 2                      # characters, after stripping
+
+baseline:
+  tfidf_max_features: 30000
+  tfidf_ngram_range: [1, 2]
+  logreg_C: 1.0
+  logreg_max_iter: 200
+
+transformer:
+  model_name: "distilbert-base-uncased"   # see README section 6 for why DistilBERT over BERT
+  max_seq_length: 128
+  batch_size: 32
+  eval_batch_size: 64
+  learning_rate: 2.0e-5
+  weight_decay: 0.01
+  num_train_epochs: 4
+  warmup_ratio: 0.1
+  early_stopping_patience: 2
+  fp16: true                              # mixed precision, set false if no CUDA
+  gradient_accumulation_steps: 1
+  output_dir: "models/distilbert-sentiment"
+  logging_steps: 50
+
+optuna:
+  n_trials: 15
+  study_name: "distilbert-sentiment-tuning"
+  direction: "maximize"
+  metric: "eval_f1_macro"
+  search_space:
+    learning_rate: [1.0e-5, 5.0e-5]
+    weight_decay: [0.0, 0.1]
+    warmup_ratio: [0.0, 0.2]
+    per_device_train_batch_size: [16, 32]
+    num_train_epochs: [2, 4]
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  model_dir: "models/distilbert-sentiment/best"
