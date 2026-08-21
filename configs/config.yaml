@@ -59,4 +59,5 @@ optuna:
 api:
   host: "0.0.0.0"
   port: 8000
-  model_dir: "models/distilbert-sentiment/best"
+  ## model_dir: "models/distilbert-sentiment/best"
+  model_dir: "kalanag/twitter-sentiment-distilbert"
