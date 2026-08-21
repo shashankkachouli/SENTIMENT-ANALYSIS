@@ -6,7 +6,8 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 # -----------------------------
 # Configuration
 # -----------------------------
-MODEL_PATH = "/content/drive/MyDrive/sentiment_project/models/distilbert-sentiment/best"
+## MODEL_PATH = "/content/drive/MyDrive/sentiment_project/models/distilbert-sentiment/best"
+MODEL_PATH = "kalanag/twitter-sentiment-distilbert"
 
 LABELS = {
     0: "Negative",
